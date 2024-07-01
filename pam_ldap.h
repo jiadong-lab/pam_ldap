@@ -140,6 +140,8 @@ typedef struct pam_ldap_config
     int debug;
     /* SASL mechanism */
     char *sasl_mechanism;
+    /* allow empty password */
+    int allow_empty_password;
   }
 pam_ldap_config_t;
 

@@ -686,6 +686,7 @@ _alloc_config (pam_ldap_config_t ** presult)
   result->logdir = NULL;
   result->sasl_mechanism = NULL;
   result->debug = 0;
+  result->allow_empty_password = 0;
   return PAM_SUCCESS;
 }
 
@@ -1119,6 +1120,10 @@ _read_config (const char *configFile, pam_ldap_config_t ** presult)
       else if (!strcasecmp (k, "debug"))
 	{
 	  result->debug = atol (v);
+	}   
+      else if (!strcasecmp (k, "allow_empty_password"))
+	{
+	  result->allow_empty_password = !strcasecmp (v, "on");
 	}
     }
 
@@ -2036,7 +2041,13 @@ _connect_as_user (pam_handle_t * pamh, pam_ldap_session_t * session, const char 
 
   /* avoid binding anonymously with a DN but no password */
   if (password == NULL || password[0] == '\0')
+  {
+    if(session->conf->allow_empty_password)
+    {
+      return PAM_SUCCESS;
+    }
     return PAM_AUTH_ERR;
+  }
 
   /* this shouldn't ever happen */
   if (session->info == NULL)
